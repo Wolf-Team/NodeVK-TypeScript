@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "preserveConstEnums": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "declaration": true,
+    "outDir": "lib",
+    "module": "ES6"
+  },
+
+  "include": ["src/**/*"]
+}
