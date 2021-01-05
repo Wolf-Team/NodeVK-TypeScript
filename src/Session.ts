@@ -1,12 +1,20 @@
-import fetch from "node-fetch";
-import { Response } from "node-fetch";
+import http from "http";
+import https from "https";
+import {URL, URLSearchParams} from "url";
+import Stream, { PassThrough, pipeline as pump } from 'stream';
 
 import ConfigSession, { getDefaultConfig } from './ConfigSession.js';
+import VKAPIException, { VKAPIError } from "./VKAPIException.js";
 
 export interface IMethodParams {
     access_token?: string,
     version?: string,
     [key: string]: any
+}
+
+export interface VKAPIResponse {
+    error?: VKAPIError,
+    response: any
 }
 
 export default abstract class Session {
@@ -17,18 +25,40 @@ export default abstract class Session {
                 this.config[key] = config[key];
     }
 
-    protected request = fetch;
+    protected async request(_url: string, data:NodeJS.Dict<string|readonly string[]>): Promise<Buffer> {
+        return new Promise<Buffer>((resolve, reject) => {
+            
+            let url:URL = new URL(_url);
+            let protocol = /https/.test(url.protocol) ? https : http;
+            url.search = new URLSearchParams(data).toString();
+            console.log("send: " + url.href);
 
-    protected async invoke_method(method: string, params: IMethodParams): Promise<Response> {
-        let query = `${this.config.url}${method}v=${this.config.version}`;
+            
+            if (this.config.debug)
+                console.log("Send request:", url.href);
+            
+            let request = protocol.request(url, {}, (response) => {
+                let buffers = [];
+                response.on("data", (c) => {
+                    buffers.push(c);
+                });
+                response.on('end', () => {
+                    resolve(Buffer.concat(buffers));
+                });
+                response.on('error', reject);
+            });
+            request.end();
+        });
+    }
 
-        for (let key in params)
-            query += `&${key}=${params[key]}`;
+    public async invoke_method(method: string, params: IMethodParams): Promise<VKAPIResponse> {
+        let url = `${this.config.url}${method}`;
+        params.v=this.config.version;
 
-        if (this.config.debug)
-            console.log("Send request:", query);
+        let result:VKAPIResponse = JSON.parse((await this.request(url, params)).toString());
 
-        let result = await fetch(this.config.url + method + "?" + query).then(res => res.json());
+        if (result.error)
+            throw new VKAPIException(result.error);
 
         if (this.config.debug)
             console.log("Get answer:", result);
