@@ -98,10 +98,21 @@ interface SendAdditionalParams extends IMethodParams {
     intent?: Intent;
     subscribe_id?: number;
 }
+interface EditAdditionalParams extends IMethodParams {
+    lat?: number;
+    long?: number;
+    keep_forward_messages?: boolean;
+    keep_snippets?: boolean;
+    group_id?: number;
+    dont_parse_links?: boolean;
+    keyboard?: Keyboard;
+    template?: Template;
+}
 export default class MessagesAPI extends API {
     api_name: string;
     send(peer_id: number, message?: string, attachments?: string | string[], params?: SendAdditionalParams): any;
     send(peer_id: string, message?: string, attachments?: string | string[], params?: SendAdditionalParams): any;
     send(peers_id: number[], message?: string, attachments?: string | string[], params?: SendAdditionalParams): any;
+    edit(peer_id: number, message_id: number, message?: string, attachments?: string | string[], params?: EditAdditionalParams): Promise<import("../Session.js").VKAPIResponse<any>>;
 }
 export {};

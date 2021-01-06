@@ -1,5 +1,6 @@
 import API, { InvokeMethodException } from "./api.js";
 import { IMethodParams } from "./../Session.js";
+import NodeVK from "./../NodeVK.js";
 
 interface ForwardMessageFormat {
     owner_id?: number,
@@ -112,6 +113,17 @@ interface SendAdditionalParams extends IMethodParams {
     subscribe_id?: number
 }
 
+interface EditAdditionalParams extends IMethodParams{
+    lat?: number,
+    long?: number,
+    keep_forward_messages?:boolean,
+    keep_snippets?:boolean,
+    group_id?: number,
+    dont_parse_links?: boolean,
+    keyboard?: Keyboard,
+    template?: Template
+}
+
 export default class MessagesAPI extends API {
     public api_name: string = "messages";
 
@@ -146,5 +158,21 @@ export default class MessagesAPI extends API {
         return await this.Session.invokeMethod(method, params);
     }
 
+    public async edit(peer_id:number, message_id:number, message?: string, attachments?: string | string[], params: EditAdditionalParams = {}){
+        let method = this.api_name + ".edit";
+        if (!this.checkValid("group", "user"))
+            throw new InvokeMethodException(method, this.type);
+            
+        if(NodeVK.isChat(peer_id)){
+            params.conversation_message_id = message_id;
+        }else{
+            params.message_id = message_id;
+        }
+
+        if (message) params.message = message;
+        if (attachments) params.attachment = attachments;
+
+        return await this.Session.invokeMethod(method, params);
+    }
 
 }

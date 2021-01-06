@@ -1,7 +1,7 @@
 {
   "name": "nodevk-ts",
   "version": "0.0.1",
-  "description": "",
+  "description": "Simple Node.js module that allows you to interact with the VKontakte API.",
   "keywords": ["vk", "vkontakte", "вк", "вконтакте", "typescript"],
   "main": "lib/app.js",
   "type": "module",
