@@ -1,7 +1,8 @@
 {
-  "name": "nodevk",
+  "name": "nodevk-ts",
   "version": "1.0.0",
   "description": "",
+  "keywords": ["vk", "vkontakte", "вк", "вконтакте", "typescript"],
   "main": "lib/app.js",
   "type": "module",
   "dependencies": {},
@@ -12,5 +13,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "WolfTeam",
+  "repository": { "type": "git", "url": "https://github.com/Wolf-Team/NodeVK-TypeScript.git" },
   "license": "MIT"
 }
