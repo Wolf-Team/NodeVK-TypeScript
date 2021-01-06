@@ -1,18 +1,12 @@
 # NodeVK TypeScript
-TODO: Write a project description
+[![license](https://img.shields.io/github/license/Wolf-Team/NodeVK-TypeScript?logo=github&style=flat-square)](https://github.com/Wolf-Team/NodeVK-TypeScript)
+[![npm version](https://img.shields.io/npm/v/nodevk-ts?style=flat-square)](https://www.npmjs.com/package/nodevk-ts)
+Simple Node.js module that allows you to interact with the VKontakte API.
 ## Installation
-TODO: Describe the installation process
+```
+npm i nodevk-ts
+```
 ## Usage
 TODO: Write usage instructions
-## Contributing
-1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
-5. Submit a pull request :D
-## History
-TODO: Write history
-## Credits
-TODO: Write credits
-## License
-TODO: Write license
+## License(MIT)
+See the [LICENSE file](https://github.com/Wolf-Team/NodeVK-TypeScript/blob/main/LICENSE) for details.

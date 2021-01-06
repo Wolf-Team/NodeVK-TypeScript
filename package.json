@@ -1,6 +1,6 @@
 {
   "name": "nodevk-ts",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "keywords": ["vk", "vkontakte", "вк", "вконтакте", "typescript"],
   "main": "lib/app.js",
