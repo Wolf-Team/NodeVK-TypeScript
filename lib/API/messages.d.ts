@@ -1,5 +1,5 @@
 import API from "./api.js";
-import { IMethodParams } from "./../Session.js";
+import { IMethodParams, VKAPIResponse } from "./../Session.js";
 interface ForwardMessageFormat {
     owner_id?: number;
     peer_id: number;
@@ -98,6 +98,12 @@ interface SendAdditionalParams extends IMethodParams {
     intent?: Intent;
     subscribe_id?: number;
 }
+interface SendMessageResponse {
+    peer_id: number;
+    message_id?: number;
+    conversation_message_id?: number;
+    error?: string;
+}
 interface EditAdditionalParams extends IMethodParams {
     lat?: number;
     long?: number;
@@ -110,9 +116,11 @@ interface EditAdditionalParams extends IMethodParams {
 }
 export default class MessagesAPI extends API {
     api_name: string;
-    send(peer_id: number, message?: string, attachments?: string | string[], params?: SendAdditionalParams): any;
-    send(peer_id: string, message?: string, attachments?: string | string[], params?: SendAdditionalParams): any;
-    send(peers_id: number[], message?: string, attachments?: string | string[], params?: SendAdditionalParams): any;
-    edit(peer_id: number, message_id: number, message?: string, attachments?: string | string[], params?: EditAdditionalParams): Promise<import("../Session.js").VKAPIResponse<any>>;
+    send(peer_id: number, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<VKAPIResponse<number>>;
+    send(peer_id: string, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<VKAPIResponse<number>>;
+    send(peers_id: number[], message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<VKAPIResponse<SendMessageResponse[]>>;
+    edit(peer_id: number, message_id: number, message?: string, attachments?: string | string[], params?: EditAdditionalParams): Promise<VKAPIResponse<1>>;
+    delete(message_ids: number[], spam?: boolean, delete_for_all?: boolean, group_id?: number): any;
+    delete(message_id: number, spam?: boolean, delete_for_all?: boolean, group_id?: number): any;
 }
 export {};
