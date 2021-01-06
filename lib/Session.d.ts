@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import ConfigSession from './ConfigSession.js';
 import { VKAPIError } from "./VKAPIException.js";
 export interface IMethodParams {
@@ -6,13 +5,13 @@ export interface IMethodParams {
     version?: string;
     [key: string]: any;
 }
-export interface VKAPIResponse {
+export interface VKAPIResponse<T = any> {
     error?: VKAPIError;
-    response: any;
+    response: T;
 }
 export default abstract class Session {
     private config;
     constructor(config?: ConfigSession);
-    protected request(_url: string, data: NodeJS.Dict<string | readonly string[]>): Promise<Buffer>;
-    invoke_method(method: string, params: IMethodParams): Promise<VKAPIResponse>;
+    protected request(url: string, params: IMethodParams): Promise<any>;
+    invokeMethod<T = any>(method: string, params: IMethodParams): Promise<VKAPIResponse<T>>;
 }
