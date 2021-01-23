@@ -3,6 +3,7 @@ import { IMethodParams, VKAPIResponse } from "./../Session.js";
 import NodeVK from "./../NodeVK.js";
 import { AttachmentPhoto } from "../NewMessageEvent.js";
 import { timeStamp } from "console";
+import VKAPIException from "../VKAPIException.js";
 
 interface ForwardMessageFormat {
     owner_id?: number,
@@ -508,10 +509,10 @@ interface GetConversationMembersAdditionalParams extends IMethodParams {
 export default class MessagesAPI extends API {
     public api_name: string = "messages";
 
-    public async send(peer_id: number, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<VKAPIResponse<number>>;
-    public async send(peer_id: string, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<VKAPIResponse<number>>;
-    public async send(peers_id: number[], message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<VKAPIResponse<SendMessageResponse[]>>;
-    public async send(peers_id: string | number | number[], message?: string, attachments?: string | string[], params: SendAdditionalParams = {}): Promise<VKAPIResponse<number | SendMessageResponse[]>> {
+    public async send(peer_id: number, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<number>;
+    public async send(peer_id: string, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<number>;
+    public async send(peers_id: number[], message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<SendMessageResponse[]>;
+    public async send(peers_id: string | number | number[], message?: string, attachments?: string | string[], params: SendAdditionalParams = {}): Promise<number | SendMessageResponse[]> {
         let method = this.api_name + ".send";
         if (!this.checkValid("group", "user"))
             throw new InvokeMethodException(method, this.type);
@@ -536,10 +537,10 @@ export default class MessagesAPI extends API {
         if (typeof params.forward_messages == "number")
             params.forward_messages = [params.forward_messages];
 
-        return await this.Session.invokeMethod<number | SendMessageResponse[]>(method, params);
+        return await this.call<number | SendMessageResponse[]>(method, params);
     }
 
-    public async edit(peer_id: number, message_id: number, message?: string, attachments?: string | string[], params: EditAdditionalParams = {}): Promise<VKAPIResponse<1>> {
+    public async edit(peer_id: number, message_id: number, message?: string, attachments?: string | string[], params: EditAdditionalParams = {}): Promise<1> {
         let method = this.api_name + ".edit";
         if (!this.checkValid("group", "user"))
             throw new InvokeMethodException(method, this.type);
@@ -553,12 +554,12 @@ export default class MessagesAPI extends API {
         if (message) params.message = message;
         if (attachments) params.attachment = attachments;
 
-        return await this.Session.invokeMethod<1>(method, params);
+        return await this.call<1>(method, params);
     }
 
-    public async delete(message_ids: number[], spam?: boolean, delete_for_all?: boolean, group_id?: number);
-    public async delete(message_id: number, spam?: boolean, delete_for_all?: boolean, group_id?: number);
-    public async delete(message_id: number | number[], spam: boolean = false, delete_for_all: boolean = false, group_id?: number): Promise<VKAPIResponse<DeleteMessageResponse>> {
+    public async delete(message_ids: number[], spam?: boolean, delete_for_all?: boolean, group_id?: number): Promise<DeleteMessageResponse>;
+    public async delete(message_id: number, spam?: boolean, delete_for_all?: boolean, group_id?: number): Promise<DeleteMessageResponse>;
+    public async delete(message_id: number | number[], spam: boolean = false, delete_for_all: boolean = false, group_id?: number): Promise<DeleteMessageResponse> {
         let method = this.api_name + ".delete";
         if (!this.checkValid("group", "user"))
             throw new InvokeMethodException(method, this.type);
@@ -574,17 +575,17 @@ export default class MessagesAPI extends API {
         if (group_id)
             params.group_id = group_id;
 
-        return await this.Session.invokeMethod<DeleteMessageResponse>(method, params);
+        return await this.call<DeleteMessageResponse>(method, params);
     }
 
-    public async getConversationMembers(peer_id: number, params: GetConversationMembersAdditionalParams = {}): Promise<VKAPIResponse<ConversationMembersResponse>> {
+    public async getConversationMembers(peer_id: number, params: GetConversationMembersAdditionalParams = {}): Promise<ConversationMembersResponse> {
         let method = this.api_name + ".getConversationMembers";
         if (!this.checkValid("group", "user"))
             throw new InvokeMethodException(method, this.type);
 
         params.peer_id = peer_id;
 
-        return await this.Session.invokeMethod<ConversationMembersResponse>(method, params);
+        return await this.call<ConversationMembersResponse>(method, params);
     }
 
 }
