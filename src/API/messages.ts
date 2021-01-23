@@ -136,89 +136,6 @@ interface EditAdditionalParams extends IMethodParams {
     keyboard?: Keyboard,
     template?: Template
 }
-
-export default class MessagesAPI extends API {
-    public api_name: string = "messages";
-
-    public async send(peer_id: number, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<VKAPIResponse<number>>;
-    public async send(peer_id: string, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<VKAPIResponse<number>>;
-    public async send(peers_id: number[], message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<VKAPIResponse<SendMessageResponse[]>>;
-    public async send(peers_id: string | number | number[], message?: string, attachments?: string | string[], params: SendAdditionalParams = {}): Promise<VKAPIResponse<number | SendMessageResponse[]>> {
-        let method = this.api_name + ".send";
-        if (!this.checkValid("group", "user"))
-            throw new InvokeMethodException(method, this.type);
-
-        if (message) params.message = message;
-        if (attachments) params.attachment = attachments;
-
-        if (params.random_id == null) params.random_id = 0;
-        if (params.intent == null) params.intent = "default";
-
-        if (Array.isArray(peers_id)) {
-            if (!this.checkValid("group"))
-                throw new InvokeMethodException(method, this.type, 'with param "peer_ids"');
-
-            params.peer_ids = peers_id;
-        } else if (typeof peers_id == "string") {
-            params.domain = peers_id;
-        } else {
-            params.peer_id = peers_id;
-        }
-
-        if (typeof params.forward_messages == "number")
-            params.forward_messages = [params.forward_messages];
-
-        return await this.Session.invokeMethod<number | SendMessageResponse[]>(method, params);
-    }
-
-    public async edit(peer_id: number, message_id: number, message?: string, attachments?: string | string[], params: EditAdditionalParams = {}): Promise<VKAPIResponse<1>> {
-        let method = this.api_name + ".edit";
-        if (!this.checkValid("group", "user"))
-            throw new InvokeMethodException(method, this.type);
-
-        if (NodeVK.isChat(peer_id)) {
-            params.conversation_message_id = message_id;
-        } else {
-            params.message_id = message_id;
-        }
-
-        if (message) params.message = message;
-        if (attachments) params.attachment = attachments;
-
-        return await this.Session.invokeMethod<1>(method, params);
-    }
-
-    public async delete(message_ids: number[], spam?: boolean, delete_for_all?: boolean, group_id?: number);
-    public async delete(message_id: number, spam?: boolean, delete_for_all?: boolean, group_id?: number);
-    public async delete(message_id: number | number[], spam: boolean = false, delete_for_all: boolean = false, group_id?: number): Promise<VKAPIResponse<DeleteMessageResponse>> {
-        let method = this.api_name + ".delete";
-        if (!this.checkValid("group", "user"))
-            throw new InvokeMethodException(method, this.type);
-
-        if (typeof message_id == "number")
-            message_id = [message_id];
-
-        let params: IMethodParams = {
-            message_ids: message_id,
-            spam: spam,
-            delete_for_all: delete_for_all
-        };
-        if (group_id)
-            params.group_id = group_id;
-
-        return await this.Session.invokeMethod<DeleteMessageResponse>(method, params);
-    }
-
-    public async getConversationMembers() {
-        let method = this.api_name + ".getConversationMembers";
-        if (!this.checkValid("group", "user"))
-            throw new InvokeMethodException(method, this.type);
-
-        return await this.Session.invokeMethod<ConversationMembersResponse>(method, params);
-    }
-
-}
-
 interface ConversationMember {
     member_id: number;
     invited_by: number;
@@ -231,7 +148,8 @@ interface ConversationMember {
 interface ConversationMembersResponse {
     count: number;
     items: ConversationMember[];
-    profiles:ProfileInfo[]
+    profiles: ProfileInfo[];
+    groups: GroupInfo[];
 }
 
 interface CareerInfo {
@@ -555,4 +473,118 @@ interface ProfileInfo {
     universities: University[];
     verified: 0 | 1;
     wall_default: "owner" | "all";
+}
+
+enum GroupClosed {
+    Open = 0,
+    Closed = 1,
+    Private = 2
+}
+interface GroupInfo {
+    id: number;
+    name: string;
+    screen_name: string;
+    is_closed: GroupClosed;
+    deactivated?: "deleted" | "banned";
+    is_admin?: 0 | 1;
+    admin_level?: 1 | 2 | 3;
+    is_member?: 0 | 1;
+    is_advertiser?: 0 | 1;
+    invited_by?: number;
+    type: "group" | "page" | "event";
+    photo_50: string;
+    photo_100: string;
+    photo_200: string;
+
+    //Additive fileds -> https://vk.com/dev/objects/group
+}
+
+interface GetConversationMembersAdditionalParams extends IMethodParams {
+    fields?: string[];
+    group_id?: number;
+
+    peer_id?: number;
+}
+export default class MessagesAPI extends API {
+    public api_name: string = "messages";
+
+    public async send(peer_id: number, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<VKAPIResponse<number>>;
+    public async send(peer_id: string, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<VKAPIResponse<number>>;
+    public async send(peers_id: number[], message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<VKAPIResponse<SendMessageResponse[]>>;
+    public async send(peers_id: string | number | number[], message?: string, attachments?: string | string[], params: SendAdditionalParams = {}): Promise<VKAPIResponse<number | SendMessageResponse[]>> {
+        let method = this.api_name + ".send";
+        if (!this.checkValid("group", "user"))
+            throw new InvokeMethodException(method, this.type);
+
+        if (message) params.message = message;
+        if (attachments) params.attachment = attachments;
+
+        if (params.random_id == null) params.random_id = 0;
+        if (params.intent == null) params.intent = "default";
+
+        if (Array.isArray(peers_id)) {
+            if (!this.checkValid("group"))
+                throw new InvokeMethodException(method, this.type, 'with param "peer_ids"');
+
+            params.peer_ids = peers_id;
+        } else if (typeof peers_id == "string") {
+            params.domain = peers_id;
+        } else {
+            params.peer_id = peers_id;
+        }
+
+        if (typeof params.forward_messages == "number")
+            params.forward_messages = [params.forward_messages];
+
+        return await this.Session.invokeMethod<number | SendMessageResponse[]>(method, params);
+    }
+
+    public async edit(peer_id: number, message_id: number, message?: string, attachments?: string | string[], params: EditAdditionalParams = {}): Promise<VKAPIResponse<1>> {
+        let method = this.api_name + ".edit";
+        if (!this.checkValid("group", "user"))
+            throw new InvokeMethodException(method, this.type);
+
+        if (NodeVK.isChat(peer_id)) {
+            params.conversation_message_id = message_id;
+        } else {
+            params.message_id = message_id;
+        }
+
+        if (message) params.message = message;
+        if (attachments) params.attachment = attachments;
+
+        return await this.Session.invokeMethod<1>(method, params);
+    }
+
+    public async delete(message_ids: number[], spam?: boolean, delete_for_all?: boolean, group_id?: number);
+    public async delete(message_id: number, spam?: boolean, delete_for_all?: boolean, group_id?: number);
+    public async delete(message_id: number | number[], spam: boolean = false, delete_for_all: boolean = false, group_id?: number): Promise<VKAPIResponse<DeleteMessageResponse>> {
+        let method = this.api_name + ".delete";
+        if (!this.checkValid("group", "user"))
+            throw new InvokeMethodException(method, this.type);
+
+        if (typeof message_id == "number")
+            message_id = [message_id];
+
+        let params: IMethodParams = {
+            message_ids: message_id,
+            spam: spam,
+            delete_for_all: delete_for_all
+        };
+        if (group_id)
+            params.group_id = group_id;
+
+        return await this.Session.invokeMethod<DeleteMessageResponse>(method, params);
+    }
+
+    public async getConversationMembers(peer_id: number, params: GetConversationMembersAdditionalParams = {}): Promise<VKAPIResponse<ConversationMembersResponse>> {
+        let method = this.api_name + ".getConversationMembers";
+        if (!this.checkValid("group", "user"))
+            throw new InvokeMethodException(method, this.type);
+
+        params.peer_id = peer_id;
+
+        return await this.Session.invokeMethod<ConversationMembersResponse>(method, params);
+    }
+
 }
