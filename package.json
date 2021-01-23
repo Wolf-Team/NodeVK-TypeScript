@@ -2,7 +2,13 @@
   "name": "nodevk-ts",
   "version": "0.0.1",
   "description": "Simple Node.js module that allows you to interact with the VKontakte API.",
-  "keywords": ["vk", "vkontakte", "вк", "вконтакте", "typescript"],
+  "keywords": [
+    "vk",
+    "vkontakte",
+    "вк",
+    "вконтакте",
+    "typescript"
+  ],
   "main": "lib/app.js",
   "type": "module",
   "dependencies": {},
@@ -13,6 +19,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "WolfTeam",
-  "repository": { "type": "git", "url": "https://github.com/Wolf-Team/NodeVK-TypeScript.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Wolf-Team/NodeVK-TypeScript.git"
+  },
   "license": "MIT"
 }

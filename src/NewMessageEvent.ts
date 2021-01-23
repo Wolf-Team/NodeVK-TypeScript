@@ -1,4 +1,5 @@
 import Session, {IMethodParams} from "./Session.js";
+import {EventHandler} from "./GroupSession.js";
 
 export interface PhotoSize {
     height: number,
@@ -40,7 +41,7 @@ export interface ForwardMessage {
     peer_id: number,
     id: number
 }
-interface MessageObject {
+export interface MessageObject {
     date: number,
     from_id: number,
     id: number,
@@ -70,19 +71,19 @@ export default class NewMessageEvent {
         return this.MessageSource.text;
     }
 
-    public reply(text: string, attachments?: string | readonly string[], params: IMethodParams = {}) {
+    public async reply(text: string, attachments?: string | readonly string[], params: IMethodParams = {}) {
         if (params.random_id == null)
             params.random_id = 0;
 
         params.message = text;
         if(attachments != null)
-            params.attachments = attachments;
+            params.attachment = attachments;
         params.peer_id = this.MessageSource.peer_id;
 
-        this.Session.invokeMethod("messages.send", params);
+        await this.Session.invokeMethod("messages.send", params);
     }
 }
 
-export interface NewMessageEventCallback {
-    (message: NewMessageEvent): void;
+export interface NewMessageEventCallback extends EventHandler{
+    (message: NewMessageEvent): boolean;
 }

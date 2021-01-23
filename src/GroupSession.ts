@@ -1,6 +1,6 @@
 import ConfigSession from './ConfigSession.js';
 import Session, { IMethodParams, VKAPIResponse } from "./Session.js"
-import NewMessageEvent, {NewMessageEventCallback} from "./NewMessageEvent.js"
+import NewMessageEvent, { NewMessageEventCallback } from "./NewMessageEvent.js"
 import request from "./request.js";
 import MessagesAPI from "./API/messages.js";
 
@@ -9,7 +9,14 @@ interface LongPollServerInfo {
     server: string,
     ts: string
 }
-
+type EventList = NodeJS.Dict<EventHandler[][]>;
+export enum EventPriority {
+    DEFAULT = 10,
+    MODULE = 5
+}
+export interface EventHandler{
+    (...args:any): boolean;
+}
 export default class GroupSession extends Session {
     protected token: string;
     public constructor(token: string, config?: ConfigSession) {
@@ -22,22 +29,47 @@ export default class GroupSession extends Session {
         return super.invokeMethod<t>(method, params);
     }
 
-    protected events: NodeJS.Dict<Function[]> = {};
+    protected static globalEventList: EventList = {};
+    protected eventList: EventList = {};
 
-    public on(event: "message_new", callback: NewMessageEventCallback);
-    public on(event: string, callback: Function);
-    public on(event: string, callback: Function) {
-        if (this.events[event] == null)
-            this.events[event] = [];
+    public on(event: "message_new", callback: NewMessageEventCallback, priority?: number);
+    public on(event: string, callback: EventHandler, priority?: number);
+    public on(event: string, callback: EventHandler, priority: number = EventPriority.DEFAULT) {
+        if (this.eventList[event] == null)
+            this.eventList[event] = [];
 
-        this.events[event].push(callback);
+        if (this.eventList[event][priority] == null)
+            this.eventList[event][priority] = [];
+
+        this.eventList[event][priority].push(callback);
+    }
+
+    public static on(event: "message_new", callback: NewMessageEventCallback, priority?: number);
+    public static on(event: string, callback: EventHandler, priority?: number);
+    public static on(event: string, callback: EventHandler, priority: number = EventPriority.DEFAULT) {
+        if (this.globalEventList[event] == null)
+            this.globalEventList[event] = [];
+
+        if (this.globalEventList[event][priority] == null)
+            this.globalEventList[event][priority] = [];
+
+        this.globalEventList[event][priority].push(callback);
     }
 
     protected invoke(event: string, ...args: any): void {
-        if (this.events[event] == null) return;
+        if (GroupSession.globalEventList[event] != null)
+            for (const callList of GroupSession.globalEventList[event])
+                if(Array.isArray(callList))
+                    for (const call of callList)
+                        if(call.apply(this, args))
+                            return;
 
-        for (let call of this.events[event])
-            call.apply(this, args);
+        if (this.eventList[event] != null)
+            for (const callList of this.eventList[event])
+                if(Array.isArray(callList))
+                    for (const call of callList)
+                        if(call.apply(this, args))
+                            return;
     }
 
 
@@ -94,7 +126,7 @@ export default class GroupSession extends Session {
             }
         } else {
             for (let event of res.updates) {
-                switch(event.type){
+                switch (event.type) {
                     case "message_new":
                         this.invoke(event.type, new NewMessageEvent(event.object, this));
                         break;
@@ -107,5 +139,5 @@ export default class GroupSession extends Session {
         }
     }
 
-    public messages:MessagesAPI = new MessagesAPI(this);
+    public messages: MessagesAPI = new MessagesAPI(this);
 }
