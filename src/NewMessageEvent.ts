@@ -50,6 +50,7 @@ export interface MessageObject {
     text: string,
     conversation_message_id: number,
     fwd_messages: ForwardMessage[],
+    reply_message: ForwardMessage,
     important: boolean,
     random_id: number,
     attachments: Attachment[],

@@ -588,4 +588,52 @@ export default class MessagesAPI extends API {
         return await this.call<ConversationMembersResponse>(method, params);
     }
 
+    public async removeChatUser(chat_id: number, member_id: number): Promise<1> {
+        let method = this.api_name + ".removeChatUser";
+        if (!this.checkValid("group", "user"))
+            throw new InvokeMethodException(method, this.type);
+
+        const params: IMethodParams = {};
+        params.chat_id = NodeVK.getChatID(chat_id);
+        params.member_id = member_id;
+        return await this.call<1>(method, params);
+    }
+    public async removeChatUserFromPeer(peer_id: number, member_id: number): Promise<1> {
+        let method = this.api_name + ".removeChatUser";
+        if (!this.checkValid("group", "user"))
+            throw new InvokeMethodException(method, this.type);
+
+        if (!NodeVK.isChat(peer_id))
+            throw new RangeError("Isn't chat ID.");
+
+        const params: IMethodParams = {};
+        params.chat_id = NodeVK.getChatID(peer_id);
+        params.member_id = member_id;
+        return await this.call<1>(method, params);
+    }
+
+    public async editChat(chat_id: number, title: string): Promise<1> {
+        let method = this.api_name + ".editChat";
+        if (!this.checkValid("group", "user"))
+            throw new InvokeMethodException(method, this.type);
+
+        const params: IMethodParams = {};
+        params.chat_id = NodeVK.getChatID(chat_id);
+        params.title = title;
+        return await this.call<1>(method, params);
+    }
+    public async editChatFromPeer(peer_id: number, title: string): Promise<1> {
+        let method = this.api_name + ".editChat";
+        if (!this.checkValid("group", "user"))
+            throw new InvokeMethodException(method, this.type);
+
+        if (!NodeVK.isChat(peer_id))
+            throw new RangeError("Isn't chat ID.");
+
+        const params: IMethodParams = {};
+        params.chat_id = NodeVK.getChatID(peer_id);
+        params.title = title;
+        return await this.call<1>(method, params);
+    }
+
 }
