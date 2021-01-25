@@ -507,7 +507,7 @@ interface GetConversationMembersAdditionalParams extends IMethodParams {
     peer_id?: number;
 }
 export default class MessagesAPI extends API {
-    public api_name: string = "messages";
+    private api_name: string = "messages";
 
     public async send(peer_id: number, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<number>;
     public async send(peer_id: string, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<number>;

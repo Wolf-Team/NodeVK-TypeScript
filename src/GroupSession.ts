@@ -3,6 +3,7 @@ import Session, { IMethodParams, VKAPIResponse } from "./Session.js"
 import NewMessageEvent, { NewMessageEventCallback } from "./NewMessageEvent.js"
 import request from "./request.js";
 import MessagesAPI from "./API/messages.js";
+import PhotosAPI from "./API/photos.js";
 
 interface LongPollServerInfo {
     key: string,
@@ -140,4 +141,5 @@ export default class GroupSession extends Session {
     }
 
     public messages: MessagesAPI = new MessagesAPI(this);
+    public photos: PhotosAPI = new PhotosAPI(this);
 }
