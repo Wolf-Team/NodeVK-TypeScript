@@ -3,9 +3,9 @@ import GroupSession, {EventPriority} from "./GroupSession.js";
 import ConfigSession, { getDefaultConfig } from "./ConfigSession.js";
 import NewMessageEvent, {ClientInfo, NewMessageEventCallback, MessageObject, AttachmentPhoto} from "./NewMessageEvent.js";
 import MessagesAPI from "./API/messages.js";
-import PhotosAPI from "./API/photos.js";
+import PhotosAPI, {File, FileObject} from "./API/photos.js";
 import NodeVK from "./NodeVK.js";
 
-export { PhotosAPI, MessagesAPI, ConfigSession, ClientInfo, MessageObject, AttachmentPhoto, Session, NewMessageEvent, NewMessageEventCallback, GroupSession, EventPriority, getDefaultConfig, IMethodParams };
+export { File, FileObject, PhotosAPI, MessagesAPI, ConfigSession, ClientInfo, MessageObject, AttachmentPhoto, Session, NewMessageEvent, NewMessageEventCallback, GroupSession, EventPriority, getDefaultConfig, IMethodParams };
 
 export default NodeVK;

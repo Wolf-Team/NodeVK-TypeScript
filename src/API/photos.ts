@@ -1,3 +1,6 @@
+import {promises as fs} from "fs";
+import path from "path";
+
 import { IMethodParams } from "../app.js";
 import request, { RequestDataFile } from "../request.js";
 import { VKAPIResponse } from "../Session.js";
@@ -10,7 +13,7 @@ export interface MessageUplodaServer {
     user_id: number;
 }
 
-interface SaveMessagesPhotoInfo extends IMethodParams{
+interface SaveMessagesPhotoInfo extends IMethodParams {
     photo: string;
     server: string;
     hash: string;
@@ -32,6 +35,8 @@ export interface PhotoObject {
     sizes: PhotoSize[],
     text?: string
 }
+export type File = RequestDataFile | string;
+export type FileObject = File | Promise<File>;
 
 export default class PhotosAPI extends API {
     private api_name: string = "photos";
@@ -47,7 +52,7 @@ export default class PhotosAPI extends API {
         let method = this.api_name + ".saveMessagesPhoto";
         if (!this.checkValid("group", "user"))
             throw new InvokeMethodException(method, this.type);
-        if(info.photo == "[]")
+        if (info.photo == "[]")
             throw new ReferenceError("Don't load photo");
 
         return await this.call<PhotoObject[]>(method, info);
@@ -60,7 +65,18 @@ export default class PhotosAPI extends API {
         })).toString());
     }
 
-    public async uploadMessagePhoto(peer_id: number, photo: RequestDataFile): Promise<PhotoObject> {
+    public async uploadMessagePhoto(peer_id: number, photo: FileObject): Promise<PhotoObject> {
+        if (photo instanceof Promise)
+            photo = await photo;
+
+        if (typeof photo === "string")
+            photo = { filename: path.basename(photo), content: await fs.readFile(photo) };
+
         return (await this.saveMessagesPhoto(await this.uploadPhoto(await this.getMessagesUploadServer(peer_id), photo)))[0];
+    }
+
+    public async uploadMessagePhotos(peer_id: number, photo: FileObject[]): Promise<PhotoObject[]> {
+        const promises = photo.map<Promise<PhotoObject>>(e => this.uploadMessagePhoto(peer_id, e));
+        return await Promise.all<PhotoObject>(promises);
     }
 }
