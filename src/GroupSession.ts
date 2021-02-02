@@ -92,7 +92,6 @@ export default class GroupSession extends Session {
         this.server = server_info.server;
         this.key = server_info.key;
         this.getEvents(server_info.ts);
-        console.log("LongPoll запущен.")
     }
 
     private async getLongPollServer(group_id: number): Promise<LongPollServerInfo> {
