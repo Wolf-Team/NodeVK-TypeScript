@@ -4,6 +4,7 @@ import NewMessageEvent, { NewMessageEventCallback } from "./NewMessageEvent.js"
 import request from "./request.js";
 import MessagesAPI from "./API/messages.js";
 import PhotosAPI from "./API/photos.js";
+import UsersAPI from './API/users.js';
 
 interface LongPollServerInfo {
     key: string,
@@ -15,8 +16,8 @@ export enum EventPriority {
     DEFAULT = 10,
     MODULE = 5
 }
-export interface EventHandler{
-    (...args:any): boolean;
+export interface EventHandler {
+    (...args: any): boolean;
 }
 export default class GroupSession extends Session {
     protected token: string;
@@ -60,16 +61,16 @@ export default class GroupSession extends Session {
     protected invoke(event: string, ...args: any): void {
         if (GroupSession.globalEventList[event] != null)
             for (const callList of GroupSession.globalEventList[event])
-                if(Array.isArray(callList))
+                if (Array.isArray(callList))
                     for (const call of callList)
-                        if(call.apply(this, args))
+                        if (call.apply(this, args))
                             return;
 
         if (this.eventList[event] != null)
             for (const callList of this.eventList[event])
-                if(Array.isArray(callList))
+                if (Array.isArray(callList))
                     for (const call of callList)
-                        if(call.apply(this, args))
+                        if (call.apply(this, args))
                             return;
     }
 
@@ -141,4 +142,5 @@ export default class GroupSession extends Session {
 
     public messages: MessagesAPI = new MessagesAPI(this);
     public photos: PhotosAPI = new PhotosAPI(this);
+    public users: UsersAPI = new UsersAPI(this);
 }

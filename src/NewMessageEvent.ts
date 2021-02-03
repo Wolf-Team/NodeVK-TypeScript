@@ -1,6 +1,6 @@
-import Session, {IMethodParams} from "./Session.js";
-import {EventHandler} from "./GroupSession.js";
-import {PhotoObject} from "./API/photos.js";
+import Session, { IMethodParams } from "./Session.js";
+import { EventHandler } from "./GroupSession.js";
+import { PhotoObject } from "./API/photos.js";
 
 export interface AttachmentPhoto {
     type: 'photo',
@@ -53,8 +53,15 @@ export default class NewMessageEvent {
         this.Session = session;
     }
 
-    get message():string{
+    get message(): string {
         return this.MessageSource.text;
+    }
+
+    get from_id(): number {
+        return this.MessageSource.from_id;
+    }
+    get peer_id(): number {
+        return this.MessageSource.peer_id;
     }
 
     public async reply(text: string, attachments?: string | readonly string[], params: IMethodParams = {}) {
@@ -62,7 +69,7 @@ export default class NewMessageEvent {
             params.random_id = 0;
 
         params.message = text;
-        if(attachments != null)
+        if (attachments != null)
             params.attachment = attachments;
         params.peer_id = this.MessageSource.peer_id;
 
@@ -70,6 +77,6 @@ export default class NewMessageEvent {
     }
 }
 
-export interface NewMessageEventCallback extends EventHandler{
+export interface NewMessageEventCallback extends EventHandler {
     (message: NewMessageEvent): boolean;
 }

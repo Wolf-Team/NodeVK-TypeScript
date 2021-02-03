@@ -1,7 +1,7 @@
 import {promises as fs} from "fs";
 import path from "path";
 
-import { IMethodParams } from "../app.js";
+import { AttachmentPhoto, IMethodParams } from "../app.js";
 import request, { RequestDataFile } from "../request.js";
 import { VKAPIResponse } from "../Session.js";
 import VKAPIException from "../VKAPIException.js";
@@ -17,6 +17,19 @@ interface SaveMessagesPhotoInfo extends IMethodParams {
     photo: string;
     server: string;
     hash: string;
+}
+
+
+export interface CropInfo {
+    x: number;
+    y: number;
+    x2: number;
+    y2: number;
+}
+export interface CropPhotoInfo {
+    photo: AttachmentPhoto;
+    crop: CropInfo;
+    rect: CropInfo;
 }
 
 export interface PhotoSize {
