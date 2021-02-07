@@ -326,15 +326,17 @@ enum NameCase {
 class UsersAPI extends API {
     private api_name: string = "users";
 
-    public get(user_id: number, name_case?: NameCase): Promise<UserObject>;
-    public get(user_id: number[], name_case?: NameCase): Promise<UserObject[]>;
-    public async get(users_ids: number | number[], name_case: NameCase = NameCase.NOM): Promise<UserObject | UserObject[]> {
+    public get(user_id: number, name_case?: NameCase, fields?: string[]): Promise<UserObject>;
+    public get(user_id: number[], name_case?: NameCase, fields?: string[]): Promise<UserObject[]>;
+    public async get(users_ids: number | number[], name_case: NameCase = NameCase.NOM, fields?: string[]): Promise<UserObject | UserObject[]> {
         const method = this.api_name + ".get";
         const is_array = Array.isArray(users_ids);
 
         const params: IMethodParams = {
-            user_ids: is_array ? users_ids : [users_ids]
+            user_ids: is_array ? users_ids : [users_ids],
+            name_case: name_case
         };
+        if(fields) params["fields"] = fields;
 
         const res = await this.call<UserObject[]>(method, params);
         return is_array ? res : res[0];
