@@ -1,10 +1,8 @@
-import {promises as fs} from "fs";
+import { promises as fs } from "fs";
 import path from "path";
 
 import { AttachmentPhoto, IMethodParams } from "../app.js";
 import request, { RequestDataFile } from "../request.js";
-import { VKAPIResponse } from "../Session.js";
-import VKAPIException from "../VKAPIException.js";
 import API, { InvokeMethodException } from "./api.js";
 
 export interface MessageUplodaServer {

@@ -1,10 +1,15 @@
 import ConfigSession from './ConfigSession.js';
 import Session, { IMethodParams, VKAPIResponse } from "./Session.js"
-import NewMessageEvent, { NewMessageEventCallback } from "./NewMessageEvent.js"
-import {VKPayEventHandler} from "./VKPayEvent.js";
-import MessagesAPI from "./API/messages.js";
-import PhotosAPI from "./API/photos.js";
-import UsersAPI from './API/users.js';
+import NewMessageEventHandler, { NewMessageEvent } from '../Events/NewMessageEventHandler.js';
+import VKPayEventHandler from "../Events/VKPayEventHandler.js";
+import MessagesAPI from "../API/messages.js";
+import PhotosAPI from "../API/photos.js";
+import UsersAPI from '../API/users.js';
+import EventHandler from '../Events/EventHandler.js';
+import DonutSubscribeEventHandler from '../Events/Donut/DonutSubscribeEventHandler.js';
+import DonutWithdrawEventHandler from '../Events/Donut/DonutWithdrawEventHandler.js';
+import DonutUnsubscribeEventHandler from '../Events/Donut/DonutUnsubscribeEventHandler.js';
+
 
 interface LongPollServerInfo {
     key: string,
@@ -15,9 +20,6 @@ type EventList = NodeJS.Dict<EventHandler[][]>;
 export enum EventPriority {
     DEFAULT = 10,
     MODULE = 5
-}
-export interface EventHandler {
-    (...args: any): boolean | Promise<boolean>;
 }
 export default class GroupSession extends Session {
     protected token: string;
@@ -34,8 +36,15 @@ export default class GroupSession extends Session {
     protected static globalEventList: EventList = {};
     protected eventList: EventList = {};
 
-    public on(event: "message_new", callback: NewMessageEventCallback, priority?: number);
-    public on(event:"vkpay_transaction", callback: VKPayEventHandler, priority?: number);
+    //Messages
+    public on(event: "message_new", callback: NewMessageEventHandler, priority?: number);
+    //Donut
+    public on(event: "donut_subscription_create" | "donut_subscription_prolonged", callback: DonutSubscribeEventHandler, priority?: number);
+    public on(event: "donut_money_withdraw", callback: DonutWithdrawEventHandler, priority?: number);
+    public on(event: "donut_subscription_expired" | "donut_subscription_cancelled", callback: DonutUnsubscribeEventHandler, priority?: number);
+    
+    //Other
+    public on(event: "vkpay_transaction", callback: VKPayEventHandler, priority?: number);
     public on(event: string, callback: EventHandler, priority?: number);
     public on(event: string, callback: EventHandler, priority: number = EventPriority.DEFAULT) {
         if (this.eventList[event] == null)
@@ -47,8 +56,8 @@ export default class GroupSession extends Session {
         this.eventList[event][priority].push(callback);
     }
 
-    public static on(event: "message_new", callback: NewMessageEventCallback, priority?: number);
-    public static on(event:"vkpay_transaction", callback: VKPayEventHandler, priority?: number);
+    public static on(event: "message_new", callback: NewMessageEventHandler, priority?: number);
+    public static on(event: "vkpay_transaction", callback: VKPayEventHandler, priority?: number);
     public static on(event: string, callback: EventHandler, priority?: number);
     public static on(event: string, callback: EventHandler, priority: number = EventPriority.DEFAULT) {
         if (this.globalEventList[event] == null)

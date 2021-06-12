@@ -1,9 +1,6 @@
 import API, { InvokeMethodException } from "./api.js";
-import { IMethodParams, VKAPIResponse } from "./../Session.js";
+import { IMethodParams } from "./../Session/Session.js";
 import NodeVK from "./../NodeVK.js";
-import { AttachmentPhoto } from "../NewMessageEvent.js";
-import { timeStamp } from "console";
-import VKAPIException from "../VKAPIException.js";
 import { UserObject } from "./users.js";
 
 interface ForwardMessageFormat {

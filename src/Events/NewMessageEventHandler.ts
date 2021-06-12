@@ -1,6 +1,6 @@
-import Session, { IMethodParams } from "./Session.js";
-import { EventHandler } from "./GroupSession.js";
-import { PhotoObject } from "./API/photos.js";
+import Session, { IMethodParams } from "../Session/Session.js";
+import EventHandler from "./EventHandler.js";
+import { PhotoObject } from "../API/photos.js";
 
 export interface AttachmentPhoto {
     type: 'photo',
@@ -42,7 +42,7 @@ export interface MessageObject {
     is_hidden: boolean
 }
 
-export default class NewMessageEvent {
+export class NewMessageEvent {
     public readonly ClientInfo: ClientInfo;
     public readonly MessageSource: MessageObject;
     protected readonly Session: Session;
@@ -77,6 +77,6 @@ export default class NewMessageEvent {
     }
 }
 
-export interface NewMessageEventCallback extends EventHandler {
+export default interface NewMessageEventHandler extends EventHandler {
     (message: NewMessageEvent): boolean | Promise<boolean>;
 }

@@ -1,6 +1,6 @@
 import { GroupSession, IMethodParams } from "../app.js";
 import VKAPIException from "../VKAPIException.js";
-import Session from "./../Session.js";
+import Session from "../Session/Session.js";
 
 export type TypeSession = "user" | "group" | "app";
 

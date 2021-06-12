@@ -1,7 +1,6 @@
 import ConfigSession, { getDefaultConfig } from './ConfigSession.js';
-import VKAPIException, { VKAPIError } from "./VKAPIException.js";
-import request, { RequestData } from "./request.js";
-import { type } from 'os';
+import VKAPIException, { VKAPIError } from "../VKAPIException.js";
+import request, { RequestData } from "../request.js";
 
 export interface IMethodParams {
     access_token?: string,

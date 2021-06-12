@@ -1,7 +1,6 @@
-import http, { METHODS } from "http";
+import http from "http";
 import https, { RequestOptions } from "https";
 import { URL, URLSearchParams } from "url";
-import fs from "fs";
 
 
 export interface RequestDataFile {
