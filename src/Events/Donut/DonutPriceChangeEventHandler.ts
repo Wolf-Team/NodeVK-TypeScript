@@ -1,5 +1,5 @@
 import { DonutUnsubscribeEvent } from "./DonutUnsubscribeEventHandler.js";
-import EventHandler from "../EventHandler.js";
+import EventHandler, { EventReturn } from "../EventHandler.js";
 
 export interface DonutPriceChangeEvent extends DonutUnsubscribeEvent {
     amount_old: number,
@@ -9,5 +9,5 @@ export interface DonutPriceChangeEvent extends DonutUnsubscribeEvent {
 }
 
 export default interface DonutPriceChangeEventHandler extends EventHandler {
-    (message: DonutPriceChangeEvent): boolean | Promise<boolean>;
+    (message: DonutPriceChangeEvent):  EventReturn<boolean | void>;
 }

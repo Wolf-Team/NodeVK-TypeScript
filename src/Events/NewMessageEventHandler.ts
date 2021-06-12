@@ -1,5 +1,5 @@
 import Session, { IMethodParams } from "../Session/Session.js";
-import EventHandler from "./EventHandler.js";
+import EventHandler, { EventReturn } from "./EventHandler.js";
 import { PhotoObject } from "../API/photos.js";
 
 export interface AttachmentPhoto {
@@ -78,5 +78,5 @@ export class NewMessageEvent {
 }
 
 export default interface NewMessageEventHandler extends EventHandler {
-    (message: NewMessageEvent): boolean | Promise<boolean>;
+    (message: NewMessageEvent): EventReturn<boolean | void>;
 }

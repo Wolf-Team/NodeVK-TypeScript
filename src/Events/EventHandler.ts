@@ -1,3 +1,4 @@
+export type EventReturn<T> = T | Promise<T>;
 export default interface EventHandler {
-    (...args: any): boolean | Promise<boolean>;
+    (...args: any): EventReturn<boolean | void>;
 }

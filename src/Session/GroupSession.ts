@@ -42,7 +42,7 @@ export default class GroupSession extends Session {
     public on(event: "donut_subscription_create" | "donut_subscription_prolonged", callback: DonutSubscribeEventHandler, priority?: number);
     public on(event: "donut_money_withdraw", callback: DonutWithdrawEventHandler, priority?: number);
     public on(event: "donut_subscription_expired" | "donut_subscription_cancelled", callback: DonutUnsubscribeEventHandler, priority?: number);
-    
+
     //Other
     public on(event: "vkpay_transaction", callback: VKPayEventHandler, priority?: number);
     public on(event: string, callback: EventHandler, priority?: number);
@@ -56,7 +56,14 @@ export default class GroupSession extends Session {
         this.eventList[event][priority].push(callback);
     }
 
+    //Messages
     public static on(event: "message_new", callback: NewMessageEventHandler, priority?: number);
+    //Donut
+    public static on(event: "donut_subscription_create" | "donut_subscription_prolonged", callback: DonutSubscribeEventHandler, priority?: number);
+    public static on(event: "donut_money_withdraw", callback: DonutWithdrawEventHandler, priority?: number);
+    public static on(event: "donut_subscription_expired" | "donut_subscription_cancelled", callback: DonutUnsubscribeEventHandler, priority?: number);
+
+    //Other
     public static on(event: "vkpay_transaction", callback: VKPayEventHandler, priority?: number);
     public static on(event: string, callback: EventHandler, priority?: number);
     public static on(event: string, callback: EventHandler, priority: number = EventPriority.DEFAULT) {
@@ -74,14 +81,14 @@ export default class GroupSession extends Session {
             for (const callList of GroupSession.globalEventList[event])
                 if (Array.isArray(callList))
                     for (const call of callList)
-                        if (await call.apply(this, args))
+                        if ((await call.apply(this, args)) === true)
                             return;
 
         if (this.eventList[event] != null)
             for (const callList of this.eventList[event])
                 if (Array.isArray(callList))
                     for (const call of callList)
-                        if (await call.apply(this, args))
+                        if ((await call.apply(this, args)) === true)
                             return;
     }
 

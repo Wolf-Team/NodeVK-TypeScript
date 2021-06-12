@@ -1,4 +1,4 @@
-import EventHandler from "../EventHandler.js";
+import EventHandler, { EventReturn } from "../EventHandler.js";
 
 export interface DonutWithdrawEvent {
     amount: number,
@@ -7,5 +7,5 @@ export interface DonutWithdrawEvent {
 
 
 export default interface DonutWithdrawEventHandler extends EventHandler {
-    (message: DonutWithdrawEvent): boolean | Promise<boolean>;
+    (message: DonutWithdrawEvent): EventReturn<boolean | void>;
 }

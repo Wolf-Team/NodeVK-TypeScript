@@ -1,9 +1,9 @@
-import EventHandler from "../EventHandler.js";
+import EventHandler, { EventReturn } from "../EventHandler.js";
 
 export interface DonutUnsubscribeEvent {
     user_id:number
 }
 
 export default interface DonutUnsubscribeEventHandler extends EventHandler {
-    (message: DonutUnsubscribeEvent): boolean | Promise<boolean>;
+    (message: DonutUnsubscribeEvent): EventReturn<boolean | void>;
 }

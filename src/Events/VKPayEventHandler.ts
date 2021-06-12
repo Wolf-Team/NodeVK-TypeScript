@@ -1,4 +1,4 @@
-import EventHandler from "./EventHandler.js";
+import EventHandler, { EventReturn } from "./EventHandler.js";
 
 export interface VKPayEvent {
     from_id: number;
@@ -8,5 +8,5 @@ export interface VKPayEvent {
 }
 
 export default interface VKPayEventHandler extends EventHandler {
-    (message: VKPayEvent): boolean | Promise<boolean>;
+    (message: VKPayEvent): EventReturn<boolean | void>;
 }

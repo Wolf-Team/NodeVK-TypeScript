@@ -1,10 +1,10 @@
-import EventHandler from "../EventHandler.js";
+import EventHandler, { EventReturn } from "../EventHandler.js";
 
 export interface DonutWithdrawErrorEvent {
     reason: string
 }
 
 export default interface DonutWithdrawErrorEventHandler extends EventHandler {
-    (message: DonutWithdrawErrorEvent): boolean | Promise<boolean>;
+    (message: DonutWithdrawErrorEvent): EventReturn<boolean | void>;
 
 }
