@@ -78,5 +78,5 @@ export default class NewMessageEvent {
 }
 
 export interface NewMessageEventCallback extends EventHandler {
-    (message: NewMessageEvent): boolean;
+    (message: NewMessageEvent): boolean | Promise<boolean>;
 }

@@ -13,12 +13,13 @@
   "type": "module",
   "dependencies": {},
   "devDependencies": {
-    "@types/node": "^14.14.20"
+    "@types/node": "^14.14.20",
+    "typedoc": "^0.20.23"
   },
   "scripts": {
-    "patch":"npm version patch & npm publish",
-    "minor":"npm version minor & npm publish",
-    "major":"npm version major & npm publish",
+    "patch": "npm version patch & npm publish",
+    "minor": "npm version minor & npm publish",
+    "major": "npm version major & npm publish",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "WolfTeam",

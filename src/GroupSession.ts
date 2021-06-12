@@ -1,7 +1,7 @@
 import ConfigSession from './ConfigSession.js';
 import Session, { IMethodParams, VKAPIResponse } from "./Session.js"
 import NewMessageEvent, { NewMessageEventCallback } from "./NewMessageEvent.js"
-import request from "./request.js";
+import {VKPayEventHandler} from "./VKPayEvent.js";
 import MessagesAPI from "./API/messages.js";
 import PhotosAPI from "./API/photos.js";
 import UsersAPI from './API/users.js';
@@ -17,7 +17,7 @@ export enum EventPriority {
     MODULE = 5
 }
 export interface EventHandler {
-    (...args: any): boolean;
+    (...args: any): boolean | Promise<boolean>;
 }
 export default class GroupSession extends Session {
     protected token: string;
@@ -35,6 +35,7 @@ export default class GroupSession extends Session {
     protected eventList: EventList = {};
 
     public on(event: "message_new", callback: NewMessageEventCallback, priority?: number);
+    public on(event:"vkpay_transaction", callback: VKPayEventHandler, priority?: number);
     public on(event: string, callback: EventHandler, priority?: number);
     public on(event: string, callback: EventHandler, priority: number = EventPriority.DEFAULT) {
         if (this.eventList[event] == null)
@@ -47,6 +48,7 @@ export default class GroupSession extends Session {
     }
 
     public static on(event: "message_new", callback: NewMessageEventCallback, priority?: number);
+    public static on(event:"vkpay_transaction", callback: VKPayEventHandler, priority?: number);
     public static on(event: string, callback: EventHandler, priority?: number);
     public static on(event: string, callback: EventHandler, priority: number = EventPriority.DEFAULT) {
         if (this.globalEventList[event] == null)
@@ -58,19 +60,19 @@ export default class GroupSession extends Session {
         this.globalEventList[event][priority].push(callback);
     }
 
-    protected invoke(event: string, ...args: any): void {
+    protected async invoke(event: string, ...args: any): Promise<void> {
         if (GroupSession.globalEventList[event] != null)
             for (const callList of GroupSession.globalEventList[event])
                 if (Array.isArray(callList))
                     for (const call of callList)
-                        if (call.apply(this, args))
+                        if (await call.apply(this, args))
                             return;
 
         if (this.eventList[event] != null)
             for (const callList of this.eventList[event])
                 if (Array.isArray(callList))
                     for (const call of callList)
-                        if (call.apply(this, args))
+                        if (await call.apply(this, args))
                             return;
     }
 
