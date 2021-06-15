@@ -73,11 +73,13 @@ export default class GroupSession extends Session {
     protected static globalEventList: GroupEvents = new GroupEvents();
     protected eventList: GroupEvents = new GroupEvents();
 
-    public readonly on = this.eventList.on;
-    public static readonly on = GroupSession.globalEventList.on;
+    public readonly on = this.eventList.on.bind(this.eventList);
+    public static readonly on = GroupSession.globalEventList.on.bind(GroupSession.globalEventList);
 
     protected async invoke(event: string, ...args: any): Promise<void> {
-        if (await GroupSession.globalEventList.invoke(event, ...args) === false)
+        const prevented = await GroupSession.globalEventList.invoke(event, ...args);
+
+        if (prevented === false)
             this.eventList.invoke(event, ...args);
     }
 
@@ -92,11 +94,13 @@ export default class GroupSession extends Session {
             this.group_id = group_id;
 
     }
-    public async startLongPoll(): Promise<void> {
+    public async startLongPoll(callback?: () => void): Promise<void> {
         if (this.group_id == null)
             throw new Error("Не был указан ID группы.");
 
         let server_info: LongPollServerInfo = await this.getLongPollServer(this.group_id);
+        if (callback)
+            callback();
         this.server = server_info.server;
         this.key = server_info.key;
         this.getEvents(server_info.ts);

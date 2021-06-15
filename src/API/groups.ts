@@ -39,20 +39,25 @@ class GroupsAPI extends API {
 
 
     public async isMembers(group_id: number, user_ids: number, extended: true): Promise<IsMemberInfo>;
-    public async isMembers(group_id: number, user_ids: number, extended: false): Promise<number>;
+    public async isMembers(group_id: number, user_ids: number, extended?: false): Promise<number>;
 
     public async isMembers(group_id: number, user_ids: number[], extended: true): Promise<IsMemberInfo[]>;
-    public async isMembers(group_id: number, user_ids: number[], extended: false): Promise<number[]>;
+    public async isMembers(group_id: number, user_ids: number[], extended?: false): Promise<number[]>;
 
     public async isMembers(group_id: number, users_ids: number | number[], extended: boolean = false): Promise<SingleOrArray<number | IsMemberInfo>> {
-        const method = this.api_name + ".get";
+        const method = this.api_name + ".isMember";
         const is_array = Array.isArray(users_ids);
 
-        let params: IMethodParams = {
-            group_id: group_id,
-            user_ids: is_array ? users_ids : [users_ids],
-            extended: extended
-        };
+        let params: IMethodParams = { group_id: group_id };
+
+        if (is_array)
+            params.user_ids = users_ids;
+        else
+            params.user_id = users_ids;
+
+        if (extended)
+            params.extended = 1;
+
         return await this.call<SingleOrArray<number | IsMemberInfo>>(method, params);
     }
 
