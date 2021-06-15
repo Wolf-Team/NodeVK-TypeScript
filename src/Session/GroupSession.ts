@@ -21,23 +21,13 @@ export enum EventPriority {
     DEFAULT = 10,
     MODULE = 5
 }
-export default class GroupSession extends Session {
-    protected token: string;
-    public constructor(token: string, config?: ConfigSession) {
-        super(config);
-        this.token = token;
-    }
 
-    public async invokeMethod<t = any>(method: string, params: IMethodParams): Promise<VKAPIResponse<t>> {
-        params.access_token = this.token;
-        return super.invokeMethod<t>(method, params);
-    }
-
-    protected static globalEventList: EventList = {};
+class GroupEvents {
     protected eventList: EventList = {};
 
     //Messages
     public on(event: "message_new", callback: NewMessageEventHandler, priority?: number);
+
     //Donut
     public on(event: "donut_subscription_create" | "donut_subscription_prolonged", callback: DonutSubscribeEventHandler, priority?: number);
     public on(event: "donut_money_withdraw", callback: DonutWithdrawEventHandler, priority?: number);
@@ -56,40 +46,39 @@ export default class GroupSession extends Session {
         this.eventList[event][priority].push(callback);
     }
 
-    //Messages
-    public static on(event: "message_new", callback: NewMessageEventHandler, priority?: number);
-    //Donut
-    public static on(event: "donut_subscription_create" | "donut_subscription_prolonged", callback: DonutSubscribeEventHandler, priority?: number);
-    public static on(event: "donut_money_withdraw", callback: DonutWithdrawEventHandler, priority?: number);
-    public static on(event: "donut_subscription_expired" | "donut_subscription_cancelled", callback: DonutUnsubscribeEventHandler, priority?: number);
-
-    //Other
-    public static on(event: "vkpay_transaction", callback: VKPayEventHandler, priority?: number);
-    public static on(event: string, callback: EventHandler, priority?: number);
-    public static on(event: string, callback: EventHandler, priority: number = EventPriority.DEFAULT) {
-        if (this.globalEventList[event] == null)
-            this.globalEventList[event] = [];
-
-        if (this.globalEventList[event][priority] == null)
-            this.globalEventList[event][priority] = [];
-
-        this.globalEventList[event][priority].push(callback);
-    }
-
-    protected async invoke(event: string, ...args: any): Promise<void> {
-        if (GroupSession.globalEventList[event] != null)
-            for (const callList of GroupSession.globalEventList[event])
-                if (Array.isArray(callList))
-                    for (const call of callList)
-                        if ((await call.apply(this, args)) === true)
-                            return;
-
+    public async invoke(event: string, ...args: any): Promise<boolean> {
         if (this.eventList[event] != null)
             for (const callList of this.eventList[event])
                 if (Array.isArray(callList))
                     for (const call of callList)
                         if ((await call.apply(this, args)) === true)
-                            return;
+                            return true;
+
+        return false;
+    }
+}
+
+export default class GroupSession extends Session {
+    protected token: string;
+    public constructor(token: string, config?: ConfigSession) {
+        super(config);
+        this.token = token;
+    }
+
+    public async invokeMethod<t = any>(method: string, params: IMethodParams): Promise<VKAPIResponse<t>> {
+        params.access_token = this.token;
+        return super.invokeMethod<t>(method, params);
+    }
+
+    protected static globalEventList: GroupEvents = new GroupEvents();
+    protected eventList: GroupEvents = new GroupEvents();
+
+    public readonly on = this.eventList.on;
+    public static readonly on = GroupSession.globalEventList.on;
+
+    protected async invoke(event: string, ...args: any): Promise<void> {
+        if (await GroupSession.globalEventList.invoke(event, ...args) === false)
+            this.eventList.invoke(event, ...args);
     }
 
 
@@ -157,8 +146,4 @@ export default class GroupSession extends Session {
             this.getEvents(res.ts);
         }
     }
-
-    public messages: MessagesAPI = new MessagesAPI(this);
-    public photos: PhotosAPI = new PhotosAPI(this);
-    public users: UsersAPI = new UsersAPI(this);
 }

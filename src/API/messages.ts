@@ -1,4 +1,4 @@
-import API, { InvokeMethodException } from "./api.js";
+import API, { CountingResponse, InvokeMethodException } from "./api.js";
 import { IMethodParams } from "./../Session/Session.js";
 import NodeVK from "./../NodeVK.js";
 import { UserObject } from "./users.js";
@@ -144,9 +144,7 @@ interface ConversationMember {
     can_kick?: boolean;
 }
 
-interface ConversationMembersResponse {
-    count: number;
-    items: ConversationMember[];
+interface ConversationMembersResponse extends CountingResponse<ConversationMember>{
     profiles: UserObject[];
     groups: GroupInfo[];
 }

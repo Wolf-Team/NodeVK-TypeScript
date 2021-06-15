@@ -10,6 +10,12 @@ export class InvokeMethodException extends Error {
     }
 }
 
+export interface CountingResponse<T>{
+    count: number;
+    items: T[];
+}
+
+export type SingleOrArray<T> = T | T[];
 export default abstract class API {
     protected Session: Session;
     protected type: TypeSession = "app";

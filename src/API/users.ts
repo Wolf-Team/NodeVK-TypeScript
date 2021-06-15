@@ -1,5 +1,5 @@
 import { IMethodParams } from "../app.js";
-import API, { InvokeMethodException } from "./api.js";
+import API from "./api.js";
 import { CropPhotoInfo } from "./photos.js"
 
 interface CareerInfo {

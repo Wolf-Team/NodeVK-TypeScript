@@ -1,6 +1,9 @@
 import ConfigSession, { getDefaultConfig } from './ConfigSession.js';
 import VKAPIException, { VKAPIError } from "../VKAPIException.js";
-import request, { RequestData } from "../request.js";
+import request, { RequestData } from "../request.js";import MessagesAPI from "../API/messages.js";
+import PhotosAPI from "../API/photos.js";
+import UsersAPI from '../API/users.js';
+import GroupsAPI from '../API/groups.js';
 
 export interface IMethodParams {
     access_token?: string,
@@ -59,4 +62,10 @@ export default abstract class Session {
 
         return result;
     }
+
+    public readonly messages: MessagesAPI = new MessagesAPI(this);
+    public readonly photos: PhotosAPI = new PhotosAPI(this);
+    public readonly users: UsersAPI = new UsersAPI(this);
+    public readonly groups: GroupsAPI = new GroupsAPI(this);
+    
 }
