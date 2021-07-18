@@ -45,7 +45,7 @@ export interface MessageObject {
 export class NewMessageEvent {
     public readonly ClientInfo: ClientInfo;
     public readonly MessageSource: MessageObject;
-    protected readonly Session: Session;
+    public readonly Session: Session;
 
     public constructor(o: { message: MessageObject, client_info: ClientInfo }, session: Session) {
         this.MessageSource = o.message;
