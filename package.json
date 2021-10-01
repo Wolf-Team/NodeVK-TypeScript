@@ -13,8 +13,7 @@
   "type": "module",
   "dependencies": {},
   "devDependencies": {
-    "@types/node": "^14.17.3",
-    "typedoc": "^0.20.36"
+    "@types/node": "^14.17.3"
   },
   "scripts": {
     "patch": "tsc -p tsconfig.json & npm version patch & npm publish",
