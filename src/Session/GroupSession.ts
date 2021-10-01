@@ -66,7 +66,7 @@ export default class GroupSession extends Session {
     }
 
     public async invokeMethod<t = any>(method: string, params: IMethodParams): Promise<VKAPIResponse<t>> {
-        params.access_token = this.token;
+        if (!params.access_token) params.access_token = this.token;
         return super.invokeMethod<t>(method, params);
     }
 
