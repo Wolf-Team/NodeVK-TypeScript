@@ -1,4 +1,6 @@
+import API from "./API.js";
 import { CropPhotoInfo } from "./photos.js";
+import { SingleOrArray } from "./utilitsTypes.js";
 
 interface CareerInfo {
 	group_id?: number;
@@ -313,5 +315,38 @@ interface UserObject {
 	verified: 0 | 1;
 	wall_default: "owner" | "all";
 }
+
+enum NameCase {
+	NOM = "nom",
+	GEN = "gen",
+	DAT = "dat",
+	ACC = "acc",
+	INS = "ins",
+	ABL = "abl"
+}
+
+
+class UsersAPI extends API {
+	protected name: string = "users";
+
+	public get(user_id: number, name_case?: NameCase, fields?: string[]): Promise<UserObject>;
+	public get(user_ids: number[], name_case?: NameCase, fields?: string[]): Promise<UserObject[]>;
+
+	public async get(users_ids: number | number[], name_case: NameCase = NameCase.NOM, fields?: string[]): Promise<SingleOrArray<UserObject>> {
+		const is_array = Array.isArray(users_ids);
+
+		const params: NodeJS.Dict<any> = {
+			user_ids: is_array ? users_ids : [users_ids],
+			name_case: name_case
+		};
+		if (fields) params["fields"] = fields;
+
+		const res = await this.invokeMethod<UserObject[]>("get", params);
+
+		return is_array ? res : res[0];
+	}
+}
+
+export default UsersAPI;
 
 export { UserObject };
