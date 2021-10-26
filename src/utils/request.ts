@@ -10,6 +10,7 @@ function getRequestMethod(protocol: string) {
 	}
 }
 
+interface IRequestData { toBody(): string; }
 type RequestURL = string | URL;
 type tRequestData = number | string | boolean;
 interface RequestData {
@@ -17,7 +18,9 @@ interface RequestData {
 }
 interface RequestParams {
 	url: RequestURL;
-	data?: RequestData
+	method?: "get" | "post";
+	headers?: NodeJS.Dict<string | number>;
+	data?: RequestData | IRequestData;
 }
 
 function request(url: RequestURL, params?: Partial<RequestParams>): Promise<string | Buffer>;
@@ -27,11 +30,13 @@ function request(params: RequestURL | RequestParams, additiveParams: Partial<Req
 	if (typeof params == "string" || params instanceof URL)
 		return request({ url: params, ...additiveParams });
 
+	if (!params.method) params.method = "get";
+
 	if (typeof params.url == "string")
 		params.url = new URL(params.url);
 
 	const createRequest = getRequestMethod(params.url.protocol);
-	if (params.data) {
+	if (params.data && params.method != "post") {
 		for (const key in params.data) {
 			const value = params.data[key];
 
@@ -43,7 +48,10 @@ function request(params: RequestURL | RequestParams, additiveParams: Partial<Req
 	}
 
 	return new Promise((r, c) => {
-		const req = createRequest(params.url);
+		const req = createRequest(params.url, {
+			method: params.method,
+			headers: params.headers || {}
+		});
 		req.on("response", res => {
 			const [type, ...rawParams] = res.headers["content-type"].split(/\;\s*/);
 			const params: { [key: string]: any } = rawParams.reduce((r, e) => {
@@ -75,9 +83,13 @@ function request(params: RequestURL | RequestParams, additiveParams: Partial<Req
 				r(body);
 			})
 		});
+
+		if (params.method == "post" && params.data) //@ts-ignore
+			req.write(params.data.toBody ? params.data.toBody() : JSON.stringify(params.data), "binary")
+
 		req.end();
 	});
 }
 
 export default request;
-export { RequestURL, tRequestData, RequestData, RequestParams }
+export { RequestURL, tRequestData, RequestData, RequestParams, IRequestData }
