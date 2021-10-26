@@ -1,40 +1,69 @@
-import { GroupSession, IMethodParams } from "../app.js";
-import VKAPIException from "../VKAPIException.js";
-import Session from "../Session/Session.js";
+import request, { RequestData } from "../utils/request.js";
 
-export type TypeSession = "user" | "group" | "app";
-
-export class InvokeMethodException extends Error {
-    public constructor(method_name: string, TypeSession: TypeSession, additional_message: string = "") {
-        super(`Don't call method ${method_name} with ${TypeSession} access token${additional_message ? " " + additional_message : ""}.`);
-    }
+interface APIInfo {
+	token: string;
+	version?: string;
+}
+interface IMethodParams extends RequestData {
+	access_token?: string;
+	v?: string;
+}
+interface VKResponseError {
+	error_code: number;
+	error_msg: string;
+	request_params: { key: string, value: string }[];
 }
 
-export interface CountingResponse<T>{
-    count: number;
-    items: T[];
+class VKError extends Error {
+	constructor(private readonly error: VKResponseError) {
+		super(error.error_msg);
+	}
+
+	public get request_params() {
+		return [...this.error.request_params];
+	}
+	public get code() {
+		return this.error.error_code;
+	}
+
 }
 
-export type SingleOrArray<T> = T | T[];
-export default abstract class API {
-    protected Session: Session;
-    protected type: TypeSession = "app";
+abstract class API {
+	private static url: string = "https://api.vk.com/method/";
 
-    public constructor(Session: Session) {
-        this.Session = Session;
-        if (Session instanceof GroupSession)
-            this.type = "group";
-    }
+	constructor(info: APIInfo) {
+		this._info = {
+			version: "5.126",
+			...info
+		};
+	}
 
-    public checkValid(...types: TypeSession[]) {
-        return types.indexOf(this.type) != -1;
-    }
+	protected abstract name: string;
+	private _info: APIInfo;
+	protected request = request;
 
-    protected async call<T>(method: string, params: IMethodParams): Promise<T> {
-        const response = await this.Session.invokeMethod<T>(method, params);
-        if (response.error)
-            throw new VKAPIException(response.error);
+	public async invokeMethod<T = {}>(method: string, params: IMethodParams = {}): Promise<T> {
+		params = {
+			access_token: this._info.token,
+			v: this._info.version,
+			...params
+		};
+		const rawResponse = <string>await request({
+			url: `${API.url}${this.name}.${method}`,
+			data: params
+		});
 
-        return response.response;
-    }
+		const response: {
+			response: T,
+			error?: VKResponseError
+		} = JSON.parse(rawResponse);
+
+		if (response.error)
+			throw new VKError(response.error);
+
+		return response.response;
+	}
 }
+
+export default API;
+export { APIInfo, IMethodParams, VKResponseError, VKError };
