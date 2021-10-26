@@ -35,10 +35,10 @@ function request(params: RequestURL | RequestParams, additiveParams: Partial<Req
 		for (const key in params.data) {
 			const value = params.data[key];
 
-			params.url.searchParams.append(key, Array.isArray(value) ?
-				value.map(e => encodeURIComponent(e)).join(",") :
-				encodeURIComponent(value)
-			)
+			if (value === null || value === undefined)
+				continue;
+
+			params.url.searchParams.append(key, Array.isArray(value) ? value.map(e => e).join(",") : value.toString())
 		}
 	}
 

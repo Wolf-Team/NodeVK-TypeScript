@@ -1,4 +1,4 @@
-import API from "./API.js";
+import API, { IMethodParams } from "./API.js";
 import { UserObject } from "./users";
 import { ListResponse } from "../utils/types.js";
 import NodeVK from "../NodeVK.js";
@@ -166,21 +166,30 @@ class MessagesAPI extends API {
 	public async send(domain: string, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<number>;
 	public async send(peers_ids: number[], message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<SendMessageResponse[]>;
 	public async send(peers_id: string | number | number[], message?: string, attachments?: string | string[], params: SendAdditionalParams = {}): Promise<number | SendMessageResponse[]> {
-		if (typeof params.forward_messages == "number")
-			params.forward_messages = [params.forward_messages];
-
-
-		return await this.invokeMethod("send", {
+		const _params: IMethodParams = {
 			message,
 			random_id: 0,
 			attachment: attachments,
 			intent: "default",
 			...params,
-			forward: JSON.stringify(params.forward),
-			keyboard: JSON.stringify(params.keyboard),
-			template: JSON.stringify(params.template),
-			content_source: JSON.stringify(params.content_source)
-		});
+			forward: params.forward ? JSON.stringify(params.forward) : null,
+			keyboard: params.keyboard ? JSON.stringify(params.keyboard) : null,
+			template: params.template ? JSON.stringify(params.template) : null,
+			content_source: params.content_source ? JSON.stringify(params.content_source) : null
+		};
+
+		if (typeof _params.forward_messages == "number")
+			_params.forward_messages = [_params.forward_messages];
+
+		if (Array.isArray(peers_id)) {
+			_params.peer_ids = peers_id;
+		} else if (typeof peers_id == "string") {
+			_params.domain = peers_id;
+		} else {
+			_params.peer_id = peers_id;
+		}
+
+		return await this.invokeMethod<number | SendMessageResponse[]>("send", _params);
 	}
 
 	public async edit(peer_id: number, message_id: number, message?: string, attachments?: string | string[], params: EditAdditionalParams = {}): Promise<1> {
@@ -197,8 +206,8 @@ class MessagesAPI extends API {
 			message,
 			attachment: attachments,
 			...params,
-			keyboard: JSON.stringify(params.keyboard),
-			template: JSON.stringify(params.template)
+			keyboard: params.keyboard ? JSON.stringify(params.keyboard) : null,
+			template: params.template ? JSON.stringify(params.template) : null
 		}))
 	}
 

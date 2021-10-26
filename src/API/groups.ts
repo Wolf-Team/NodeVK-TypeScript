@@ -63,6 +63,12 @@ interface GroupInfo {
 	//Additive fileds -> https://vk.com/dev/objects/group
 }
 
+interface LongPoolServer {
+	key: string;
+	server: string;
+	ts: string;
+}
+
 class GroupsAPI extends API {
 	protected name = "groups";
 
@@ -128,7 +134,12 @@ class GroupsAPI extends API {
 
 		return false;
 	}
+
+
+	public getLongPollServer(group_id: number) {
+		return this.invokeMethod<LongPoolServer>("getLongPollServer", { group_id });
+	}
 }
 
 export default GroupsAPI;
-export { FilterMembers, Sort, GroupInfo };
+export { FilterMembers, Sort, GroupInfo, LongPoolServer };

@@ -40,28 +40,33 @@ abstract class API {
 
 	protected abstract name: string;
 	private _info: APIInfo;
-	protected request = request;
 
-	public async invokeMethod<T = {}>(method: string, params: IMethodParams = {}): Promise<T> {
+	public async invokeMethod<T = 1>(method: string, params: IMethodParams = {}): Promise<T> {
 		params = {
 			access_token: this._info.token,
 			v: this._info.version,
 			...params
 		};
+
 		const rawResponse = <string>await request({
 			url: `${API.url}${this.name}.${method}`,
 			data: params
 		});
+		try {
+			const response: {
+				response: T,
+				error?: VKResponseError
+			} = JSON.parse(rawResponse);
+			if (response.error)
+				throw new VKError(response.error);
 
-		const response: {
-			response: T,
-			error?: VKResponseError
-		} = JSON.parse(rawResponse);
+			return response.response;
+		} catch (e) {
+			console.log(rawResponse)
+			throw e;
+		}
 
-		if (response.error)
-			throw new VKError(response.error);
 
-		return response.response;
 	}
 }
 
