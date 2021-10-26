@@ -1,6 +1,6 @@
 import API from "./API.js";
 import { CropPhotoInfo } from "./photos.js";
-import { SingleOrArray } from "./utilitsTypes.js";
+import { SingleOrArray } from "../utils/types.js";
 
 interface CareerInfo {
 	group_id?: number;

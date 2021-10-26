@@ -1,6 +1,6 @@
 import API from "./API.js";
 import { UserObject } from "./users.js";
-import { ListResponse, SingleOrArray } from "./utilitsTypes.js";
+import { ListResponse, SingleOrArray } from "../utils/types.js";
 
 enum FilterMembers {
 	friends = "friends",
@@ -36,6 +36,31 @@ interface IsMemberInfo {
 	invitation?: 0 | 1,
 	can_invite?: 0 | 1,
 	can_recall?: 0 | 1,
+}
+
+
+enum GroupClosed {
+	Open = 0,
+	Closed = 1,
+	Private = 2
+}
+interface GroupInfo {
+	id: number;
+	name: string;
+	screen_name: string;
+	is_closed: GroupClosed;
+	deactivated?: "deleted" | "banned";
+	is_admin?: 0 | 1;
+	admin_level?: 1 | 2 | 3;
+	is_member?: 0 | 1;
+	is_advertiser?: 0 | 1;
+	invited_by?: number;
+	type: "group" | "page" | "event";
+	photo_50: string;
+	photo_100: string;
+	photo_200: string;
+
+	//Additive fileds -> https://vk.com/dev/objects/group
 }
 
 class GroupsAPI extends API {
@@ -106,4 +131,4 @@ class GroupsAPI extends API {
 }
 
 export default GroupsAPI;
-export { FilterMembers, Sort };
+export { FilterMembers, Sort, GroupInfo };

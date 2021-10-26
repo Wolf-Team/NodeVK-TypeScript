@@ -1,4 +1,4 @@
-import request, { RequestData } from "../utils/request.js";
+import request, { RequestData, tRequestData } from "../utils/request.js";
 
 interface APIInfo {
 	token: string;

@@ -13,7 +13,7 @@ function getRequestMethod(protocol: string) {
 type RequestURL = string | URL;
 type tRequestData = number | string | boolean;
 interface RequestData {
-	[key: string]: tRequestData | Array<tRequestData>;
+	[key: string]: tRequestData | (tRequestData)[];
 }
 interface RequestParams {
 	url: RequestURL;
