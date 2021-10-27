@@ -1,4 +1,4 @@
-import API, { IMethodParams } from "./API.js";
+import API, { MethodParams } from "./API.js";
 import { UserObject } from "./users";
 import { ListResponse } from "../utils/types.js";
 import NodeVK from "../NodeVK.js";
@@ -166,7 +166,7 @@ class MessagesAPI extends API {
 	public async send(domain: string, message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<number>;
 	public async send(peers_ids: number[], message?: string, attachments?: string | string[], params?: SendAdditionalParams): Promise<SendMessageResponse[]>;
 	public async send(peers_id: string | number | number[], message?: string, attachments?: string | string[], params: SendAdditionalParams = {}): Promise<number | SendMessageResponse[]> {
-		const _params: IMethodParams = {
+		const _params: MethodParams = {
 			message,
 			random_id: 0,
 			attachment: attachments,

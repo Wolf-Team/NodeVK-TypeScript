@@ -1,4 +1,6 @@
 namespace NodeVK {
+	export const VERSION = "5.126";
+
 	export function isChat(id: number): boolean {
 		return id > 2000000000;
 	}

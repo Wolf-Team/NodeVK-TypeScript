@@ -62,10 +62,27 @@ interface NewMessageEvent {
 	message: MessageObject;
 	client_info: ClientInfo;
 }
-interface NewMessageEventHandler {
-	(this: Session, event: NewMessageEvent): void
+
+interface DonutUnsubscribeEvent {
+	user_id: number;
+}
+interface DonutWithdrawEvent {
+	amount: number,
+	amount_without_fee: number
 }
 
+interface DonutSubscribeEvent extends DonutUnsubscribeEvent, DonutWithdrawEvent { }
+
+interface VKPayEvent {
+	from_id: number;
+	amount: number;
+	description: string;
+	date: number;
+}
+
+interface EventHandler<T> {
+	(this: Session, event: T): void
+}
 class BotsLongPoll extends EventEmitter {
 	private readonly _session: Session;
 	private _active = false;
@@ -106,9 +123,21 @@ class BotsLongPoll extends EventEmitter {
 		}
 	}
 
+	//Message
+	public on(event: "message_new", listener: EventHandler<NewMessageEvent>): this;
 
+	//Donat
+	public on(event: "donut_subscription_create", listener: EventHandler<DonutSubscribeEvent>): this;
+	public on(event: "donut_subscription_prolonged", listener: EventHandler<DonutSubscribeEvent>): this;
+	public on(event: "donut_money_withdraw", listener: EventHandler<DonutWithdrawEvent>): this;
+	public on(event: "donut_subscription_expired", listener: EventHandler<DonutUnsubscribeEvent>): this;
+	public on(event: "donut_subscription_cancelled", listener: EventHandler<DonutUnsubscribeEvent>): this;
+
+	//VKPay
+	public on(event: "vkpay_transaction", listener: EventHandler<VKPayEvent>): this;
+
+	//Other
 	public on(event: "failed", listener: (this: Session, code: number) => void): this;
-	public on(event: "message_new", listener: NewMessageEventHandler): this;
 	public on(event: string, listener: (this: Session, ...args: any[]) => void): this {
 		return super.on(event, listener.bind(this._session));
 	}

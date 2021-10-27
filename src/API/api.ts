@@ -2,12 +2,13 @@ import request, { RequestData, tRequestData } from "../utils/request.js";
 
 interface APIInfo {
 	token: string;
-	version?: string;
+	version: string;
 }
 interface IMethodParams extends RequestData {
-	access_token?: string;
-	v?: string;
+	access_token: string;
+	v: string;
 }
+type MethodParams = Partial<IMethodParams>;
 interface VKResponseError {
 	error_code: number;
 	error_msg: string;
@@ -32,26 +33,18 @@ abstract class API {
 	private static url: string = "https://api.vk.com/method/";
 
 	constructor(info: APIInfo) {
-		this._info = {
-			version: "5.126",
-			...info
-		};
+		this._info = info;
 	}
 
 	protected abstract name: string;
 	private _info: APIInfo;
 
-	public async invokeMethod<T = 1>(method: string, params: IMethodParams = {}): Promise<T> {
-		params = {
-			access_token: this._info.token,
-			v: this._info.version,
-			...params
-		};
-
+	public static async invokeMethod<T = 1>(namespace: string, method: string, params: IMethodParams): Promise<T> {
 		const rawResponse = <string>await request({
-			url: `${API.url}${this.name}.${method}`,
+			url: `${API.url}${namespace}.${method}`,
 			data: params
 		});
+
 		try {
 			const response: {
 				response: T,
@@ -62,13 +55,18 @@ abstract class API {
 
 			return response.response;
 		} catch (e) {
-			console.log(rawResponse)
 			throw e;
 		}
+	}
 
-
+	public async invokeMethod<T = 1>(method: string, params: MethodParams = {}): Promise<T> {
+		return API.invokeMethod(this.name, method, {
+			access_token: this._info.token,
+			v: this._info.version,
+			...params
+		});
 	}
 }
 
 export default API;
-export { APIInfo, IMethodParams, VKResponseError, VKError };
+export { APIInfo, IMethodParams, MethodParams, VKResponseError, VKError };
